@@ -1,6 +1,7 @@
 import React, { Fragment, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { backendURL } from "../App";
+import { Modal } from "../Layout/Modal";
 import classes from "./MyTask.module.css";
 
 export default function NotesItem(props) {
@@ -10,6 +11,7 @@ export default function NotesItem(props) {
   const [notes, setNotes] = useState(el.text);
   const [title, setTitle] = useState(el.title);
   const [showNotes, setShowNote] = useState(true);
+  const [showModal, setShowModal] = useState(false);
   const noteEditRef = useRef();
   const token = useSelector((state) => state.token);
   // console.log(el);
@@ -71,6 +73,9 @@ export default function NotesItem(props) {
     event.preventDefault();
     setEdit(false);
   };
+  const showNotesModalHandler = () => {
+    setShowModal(!showModal);
+  };
 
   return (
     <Fragment>
@@ -81,14 +86,22 @@ export default function NotesItem(props) {
             background: `${done ? "rgb(37, 231, 11)" : ""}`,
           }}
         >
-          <h1>
+          <h1 onClick={showNotesModalHandler} style={{ cursor: "pointer" }}>
             <u>
               <b> {title}</b>
             </u>
           </h1>
-          <h3 style={{ textDecoration: `${done ? "line-through" : ""}` }}>
+          {showModal && (
+            <Modal
+              title={title}
+              text={notes}
+              showModal={showModal}
+              setShowModal={setShowModal}
+            />
+          )}
+          {/* <h3 style={{ textDecoration: `${done ? "line-through" : ""}` }}>
             {notes}
-          </h3>
+          </h3> */}
 
           <p>{new Date(el.updatedAt).toLocaleString()}</p>
           {edit && !done && (
@@ -101,13 +114,15 @@ export default function NotesItem(props) {
           )}
           <br />
           <div className={classes.buttonHolder}>
-            <button
-              className={classes.button}
-              id={el._id}
-              onClick={editHandler}
-            >
-              {edit && !done ? "Save" : "Edit-Task"}
-            </button>
+            {showModal && (
+              <button
+                className={classes.button}
+                id={el._id}
+                onClick={editHandler}
+              >
+                {edit && !done ? "Save" : "Edit-Task"}
+              </button>
+            )}
             {edit && !done && (
               <button
                 className={classes.button}
@@ -117,13 +132,15 @@ export default function NotesItem(props) {
                 Cancel
               </button>
             )}
-            <button
-              onClick={taskDoneHandler}
-              id={el._id}
-              className={classes.btnDelete}
-            >
-              {!done ? "Done" : "Delete"}
-            </button>
+            {showModal && (
+              <button
+                onClick={taskDoneHandler}
+                id={el._id}
+                className={classes.btnDelete}
+              >
+                {!done ? "Done" : "Delete"}
+              </button>
+            )}
           </div>
         </div>
       )}
